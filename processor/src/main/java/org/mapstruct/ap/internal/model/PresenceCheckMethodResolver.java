@@ -5,11 +5,6 @@
  */
 package org.mapstruct.ap.internal.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.mapstruct.ap.internal.model.common.Parameter;
 import org.mapstruct.ap.internal.model.common.PresenceCheck;
 import org.mapstruct.ap.internal.model.common.Type;
@@ -21,6 +16,11 @@ import org.mapstruct.ap.internal.model.source.selector.MethodSelectors;
 import org.mapstruct.ap.internal.model.source.selector.SelectedMethod;
 import org.mapstruct.ap.internal.model.source.selector.SelectionCriteria;
 import org.mapstruct.ap.internal.util.Message;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Filip Hrisafov
@@ -47,7 +47,6 @@ public final class PresenceCheckMethodResolver {
         }
 
         MethodReference methodReference = getPresenceCheckMethodReference( method, matchingMethod, ctx );
-
         return new MethodReferencePresenceCheck( methodReference );
 
     }
