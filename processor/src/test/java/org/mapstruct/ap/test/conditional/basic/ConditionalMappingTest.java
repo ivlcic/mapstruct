@@ -5,10 +5,7 @@
  */
 package org.mapstruct.ap.test.conditional.basic;
 
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
 import org.mapstruct.ap.testutil.IssueKey;
 import org.mapstruct.ap.testutil.ProcessorTest;
 import org.mapstruct.ap.testutil.WithClasses;
@@ -16,6 +13,11 @@ import org.mapstruct.ap.testutil.compilation.annotation.CompilationResult;
 import org.mapstruct.ap.testutil.compilation.annotation.Diagnostic;
 import org.mapstruct.ap.testutil.compilation.annotation.ExpectedCompilationOutcome;
 import org.mapstruct.ap.testutil.runner.GeneratedSource;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @IssueKey("2051")
 @WithClasses({
     BasicEmployee.class,
-    BasicEmployeeDto.class
+    BasicEmployeeDto.class,
+    TPN.class,
+    TPNDto.class
 })
 public class ConditionalMappingTest {
 
@@ -117,6 +121,98 @@ public class ConditionalMappingTest {
 
         employee = mapper.map( new BasicEmployeeDto( "    " ), utils );
         assertThat( employee.getName() ).isNull();
+    }
+
+    @ProcessorTest
+    @WithClasses({
+        ConditionalMethodWithTargetPropNameInContextMapper.class
+    })
+    public void conditionalMethodWithTargetPropNameInUsesContextMapper() {
+      ConditionalMethodWithTargetPropNameInContextMapper mapper
+        = ConditionalMethodWithTargetPropNameInContextMapper.INSTANCE;
+
+      ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtils utils =
+        new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtils();
+
+      TPNDto.TPNEmployeeDto employeeDto = new TPNDto.TPNEmployeeDto();
+      employeeDto.setLastName( "  " );
+      employeeDto.setCountry( "US" );
+      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+
+      TPN.TPNEmployee employee = mapper.map( employeeDto, utils );
+      assertThat( employee.getLastName() ).isNull();
+      assertThat( Set.of(
+        "firstName",
+        "lastName",
+        "title",
+        "country",
+        "street" )
+      ).isEqualTo( utils.visited );
+
+
+      ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllProps allPropsUtils =
+        new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllProps();
+
+      employeeDto = new TPNDto.TPNEmployeeDto();
+      employeeDto.setLastName( "Tester" );
+      employeeDto.setCountry( "US" );
+      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+
+      employee = mapper.map( employeeDto, allPropsUtils );
+      assertThat( employee.getLastName() ).isEqualTo( "Tester" );
+      assertThat( Set.of(
+        "firstName",
+        "lastName",
+        "title",
+        "country",
+        "active",
+        "age",
+        "boss",
+        "primaryAddress",
+        "addresses",
+        "street" )
+      ).isEqualTo( allPropsUtils.visited );
+
+
+      ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllPropsWithSource allPropsUtilsWithSource =
+        new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllPropsWithSource();
+
+
+      TPNDto.TPNEmployeeDto bossEmployeeDto = new TPNDto.TPNEmployeeDto();
+      bossEmployeeDto.setLastName( "Boss Tester" );
+      bossEmployeeDto.setCountry( "US" );
+      bossEmployeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+
+      employeeDto = new TPNDto.TPNEmployeeDto();
+      employeeDto.setLastName( "Tester" );
+      employeeDto.setCountry( "US" );
+      employeeDto.setBoss( bossEmployeeDto );
+      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+
+      employee = mapper.map( employeeDto, allPropsUtilsWithSource );
+      assertThat( employee.getLastName() ).isEqualTo( "Tester" );
+      assertThat( List.of(
+        "firstName",
+        "lastName",
+        "title",
+        "country",
+        "active",
+        "age",
+        "boss",
+        "boss.firstName",
+        "boss.lastName",
+        "boss.title",
+        "boss.country",
+        "boss.active",
+        "boss.age",
+        "boss.boss",
+        "boss.primaryAddress",
+        "boss.addresses",
+        "boss.addresses.street",
+        "primaryAddress",
+        "addresses",
+        "addresses.street" )
+      ).isEqualTo( allPropsUtilsWithSource.visited );
     }
 
     @ProcessorTest

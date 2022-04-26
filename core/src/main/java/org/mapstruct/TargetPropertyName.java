@@ -11,6 +11,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * This annotation marks a <em>presence check method</em> parameter as a property name parameter.
+ * <p>
+ *   This parameter enables conditional filtering based on source property name in run-time.
+ * </p>
  * @author Nikola Ivačič.
  * @since 1.5
  */
