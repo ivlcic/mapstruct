@@ -27,9 +27,9 @@ public interface ConditionalMethodWithTargetPropNameInContextMapper {
     ConditionalMethodWithTargetPropNameInContextMapper INSTANCE
       = Mappers.getMapper( ConditionalMethodWithTargetPropNameInContextMapper.class );
 
-    TPN.TPNEmployee map(TPNDto.TPNEmployeeDto employee, @Context PresenceUtils utils);
+    TPN.Employee map(TPN.EmployeeDto employee, @Context PresenceUtils utils);
 
-    TPN.TPNAddress map(TPNDto.TPNEmployeeDto.TPNAddressDto addressDto, @Context PresenceUtils utils);
+    TPN.Address map(TPN.AddressDto addressDto, @Context PresenceUtils utils);
 
     class PresenceUtils {
         Set<String> visited = new LinkedHashSet<>();
@@ -41,9 +41,9 @@ public interface ConditionalMethodWithTargetPropNameInContextMapper {
         }
     }
 
-    TPN.TPNEmployee map(TPNDto.TPNEmployeeDto employee, @Context PresenceUtilsAllProps utils);
+    TPN.Employee map(TPN.EmployeeDto employee, @Context PresenceUtilsAllProps utils);
 
-    TPN.TPNAddress map(TPNDto.TPNEmployeeDto.TPNAddressDto addressDto, @Context PresenceUtilsAllProps utils);
+    TPN.Address map(TPN.AddressDto addressDto, @Context PresenceUtilsAllProps utils);
 
     class PresenceUtilsAllProps {
         Set<String> visited = new LinkedHashSet<>();
@@ -55,12 +55,12 @@ public interface ConditionalMethodWithTargetPropNameInContextMapper {
         }
     }
 
-    TPN.TPNEmployee map(TPNDto.TPNEmployeeDto employee, @Context PresenceUtilsAllPropsWithSource utils);
+    TPN.Employee map(TPN.EmployeeDto employee, @Context PresenceUtilsAllPropsWithSource utils);
 
-    TPN.TPNAddress map(TPNDto.TPNAddressDto addressDto, @Context PresenceUtilsAllPropsWithSource utils);
+    TPN.Address map(TPN.AddressDto addressDto, @Context PresenceUtilsAllPropsWithSource utils);
 
     @BeforeMapping
-    default void before(TPNDto source, @Context PresenceUtilsAllPropsWithSource utils) {
+    default void before(TPN source, @Context PresenceUtilsAllPropsWithSource utils) {
         String lastProp = utils.visitedSegments.peekLast();
         if ( lastProp != null && source != null ) {
             utils.path.offerLast( lastProp );

@@ -28,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WithClasses({
     BasicEmployee.class,
     BasicEmployeeDto.class,
-    TPN.class,
-    TPNDto.class
+    TPN.class
 })
 public class ConditionalMappingTest {
 
@@ -125,6 +124,126 @@ public class ConditionalMappingTest {
 
     @ProcessorTest
     @WithClasses({
+            ConditionalMethodInMapperWithTargetPropName.class
+    })
+    public void conditionalMethodInMapperWithTargetPropName() {
+        ConditionalMethodInMapperWithTargetPropName mapper
+                = ConditionalMethodInMapperWithTargetPropName.INSTANCE;
+
+        TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
+        employeeDto.setFirstName( "  " );
+        employeeDto.setLastName( "Testirovich" );
+        employeeDto.setCountry( "US" );
+        employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
+
+        TPN.Employee employee = mapper.map( employeeDto );
+        assertThat( employee.getLastName() ).isNull();
+        assertThat( employee.getFirstName() ).isNull();
+    }
+
+    @ProcessorTest
+    @WithClasses({
+            ConditionalMethodForCollectionMapperWithTargetPropName.class
+    })
+    public void conditionalMethodForCollectionMapperWithTargetPropName() {
+        ConditionalMethodForCollectionMapperWithTargetPropName mapper
+                = ConditionalMethodForCollectionMapperWithTargetPropName.INSTANCE;
+
+        TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
+        employeeDto.setFirstName( "  " );
+        employeeDto.setLastName( "Testirovich" );
+        employeeDto.setCountry( "US" );
+        employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
+
+        TPN.Employee employee = mapper.map( employeeDto );
+        assertThat( employee.getLastName() ).isNull();
+        assertThat( employee.getFirstName() ).isNull();
+        assertThat( employee.getAddresses() ).isNull();
+    }
+
+    @ProcessorTest
+    @WithClasses({
+            ConditionalMethodInUsesMapperWithTargetPropName.class
+    })
+    public void conditionalMethodInUsesMapperWithTargetPropName() {
+        ConditionalMethodInUsesMapperWithTargetPropName mapper
+                = ConditionalMethodInUsesMapperWithTargetPropName.INSTANCE;
+
+        TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
+        employeeDto.setFirstName( "  " );
+        employeeDto.setLastName( "Testirovich" );
+        employeeDto.setCountry( "US" );
+        employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
+
+        TPN.Employee employee = mapper.map( employeeDto );
+        assertThat( employee.getLastName() ).isNull();
+        assertThat( employee.getFirstName() ).isNull();
+    }
+
+    @ProcessorTest
+    @WithClasses({
+            ConditionalMethodInMapperWithAllOptions.class
+    })
+    public void conditionalMethodInMapperWithAllOptions() {
+        ConditionalMethodInMapperWithAllOptions mapper
+                = ConditionalMethodInMapperWithAllOptions.INSTANCE;
+
+        ConditionalMethodInMapperWithAllOptions.PresenceUtils utils =
+                new ConditionalMethodInMapperWithAllOptions.PresenceUtils();
+
+        TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
+        employeeDto.setFirstName( "  " );
+        employeeDto.setLastName( "Testirovich" );
+        employeeDto.setCountry( "US" );
+        employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
+
+        TPN.Employee employee = new TPN.Employee();
+        mapper.map( employeeDto, employee, utils );
+        assertThat( employee.getLastName() ).isNull();
+        assertThat( employee.getFirstName() ).isNull();
+        assertThat( Set.of(
+                "firstName",
+                "lastName",
+                "title",
+                "country" )
+        ).isEqualTo( utils.visited );
+        assertThat( Set.of( "EmployeeDto" ) ).isEqualTo( utils.visitedSources );
+        assertThat( Set.of( "Employee" ) ).isEqualTo( utils.visitedTargets );
+    }
+
+    @ProcessorTest
+    @WithClasses({
+            ConditionalMethodInMapperWithAllExceptTarget.class
+    })
+    public void conditionalMethodInMapperWithAllExceptTarget() {
+        ConditionalMethodInMapperWithAllExceptTarget mapper
+                = ConditionalMethodInMapperWithAllExceptTarget.INSTANCE;
+
+        ConditionalMethodInMapperWithAllExceptTarget.PresenceUtils utils =
+                new ConditionalMethodInMapperWithAllExceptTarget.PresenceUtils();
+
+        TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
+        employeeDto.setFirstName( "  " );
+        employeeDto.setLastName( "Testirovich" );
+        employeeDto.setCountry( "US" );
+        employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
+
+        TPN.Employee employee = mapper.map( employeeDto, utils );
+        assertThat( employee.getLastName() ).isEqualTo( "Testirovich" );
+        assertThat( employee.getFirstName() ).isEqualTo( "  " );
+        assertThat( Set.of(
+                "firstName",
+                "lastName",
+                "title",
+                "country",
+                "street" )
+        ).isEqualTo( utils.visited );
+        assertThat( Set.of( "EmployeeDto", "AddressDto" ) )
+                .isEqualTo( utils.visitedSources );
+    }
+
+    @ProcessorTest
+    @WithClasses({
         ConditionalMethodWithTargetPropNameInContextMapper.class
     })
     public void conditionalMethodWithTargetPropNameInUsesContextMapper() {
@@ -134,43 +253,43 @@ public class ConditionalMappingTest {
       ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtils utils =
         new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtils();
 
-      TPNDto.TPNEmployeeDto employeeDto = new TPNDto.TPNEmployeeDto();
+      TPN.EmployeeDto employeeDto = new TPN.EmployeeDto();
       employeeDto.setLastName( "  " );
       employeeDto.setCountry( "US" );
-      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+      employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
 
-      TPN.TPNEmployee employee = mapper.map( employeeDto, utils );
+      TPN.Employee employee = mapper.map( employeeDto, utils );
       assertThat( employee.getLastName() ).isNull();
       assertThat( Set.of(
-        "firstName",
-        "lastName",
-        "title",
-        "country",
-        "street" )
+              "firstName",
+              "lastName",
+              "title",
+              "country",
+              "street" )
       ).isEqualTo( utils.visited );
 
 
       ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllProps allPropsUtils =
         new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllProps();
 
-      employeeDto = new TPNDto.TPNEmployeeDto();
+      employeeDto = new TPN.EmployeeDto();
       employeeDto.setLastName( "Tester" );
       employeeDto.setCountry( "US" );
-      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+      employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
 
       employee = mapper.map( employeeDto, allPropsUtils );
       assertThat( employee.getLastName() ).isEqualTo( "Tester" );
       assertThat( Set.of(
-        "firstName",
-        "lastName",
-        "title",
-        "country",
-        "active",
-        "age",
-        "boss",
-        "primaryAddress",
-        "addresses",
-        "street" )
+              "firstName",
+              "lastName",
+              "title",
+              "country",
+              "active",
+              "age",
+              "boss",
+              "primaryAddress",
+              "addresses",
+              "street" )
       ).isEqualTo( allPropsUtils.visited );
 
 
@@ -178,40 +297,40 @@ public class ConditionalMappingTest {
         new ConditionalMethodWithTargetPropNameInContextMapper.PresenceUtilsAllPropsWithSource();
 
 
-      TPNDto.TPNEmployeeDto bossEmployeeDto = new TPNDto.TPNEmployeeDto();
+      TPN.EmployeeDto bossEmployeeDto = new TPN.EmployeeDto();
       bossEmployeeDto.setLastName( "Boss Tester" );
       bossEmployeeDto.setCountry( "US" );
-      bossEmployeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+      bossEmployeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
 
-      employeeDto = new TPNDto.TPNEmployeeDto();
+      employeeDto = new TPN.EmployeeDto();
       employeeDto.setLastName( "Tester" );
       employeeDto.setCountry( "US" );
       employeeDto.setBoss( bossEmployeeDto );
-      employeeDto.setAddresses( List.of( new TPNDto.TPNEmployeeDto.TPNAddressDto( "Testing St. 6" ) ) );
+      employeeDto.setAddresses( List.of( new TPN.AddressDto( "Testing St. 6" ) ) );
 
       employee = mapper.map( employeeDto, allPropsUtilsWithSource );
       assertThat( employee.getLastName() ).isEqualTo( "Tester" );
       assertThat( List.of(
-        "firstName",
-        "lastName",
-        "title",
-        "country",
-        "active",
-        "age",
-        "boss",
-        "boss.firstName",
-        "boss.lastName",
-        "boss.title",
-        "boss.country",
-        "boss.active",
-        "boss.age",
-        "boss.boss",
-        "boss.primaryAddress",
-        "boss.addresses",
-        "boss.addresses.street",
-        "primaryAddress",
-        "addresses",
-        "addresses.street" )
+              "firstName",
+              "lastName",
+              "title",
+              "country",
+              "active",
+              "age",
+              "boss",
+              "boss.firstName",
+              "boss.lastName",
+              "boss.title",
+              "boss.country",
+              "boss.active",
+              "boss.age",
+              "boss.boss",
+              "boss.primaryAddress",
+              "boss.addresses",
+              "boss.addresses.street",
+              "primaryAddress",
+              "addresses",
+              "addresses.street" )
       ).isEqualTo( allPropsUtilsWithSource.visited );
     }
 
